@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gallery — Natsumi</title>
+    <!-- フォントやCSSは index.html と同じでOK -->
+  </head>
+  <body>
+    <!-- NAV, HERO は省いてOK（Galleryだけ見せたいなら） -->
+    <main class="wrap">
+      <h2 class="sec" id="gallery">Gallery</h2>
+      <section class="gallery" id="grid"></section>
+    </main>
+    <footer>© Natsumi Tanaka</footer>
+
+    <script>
+      // index.html と同じ GitHub 読み込み処理
+      const GH_OWNER = "naa39at";
+      const GH_REPO = "photo-journal-assets";
+      const GH_PATH = "";
+
+      async function loadFromGitHub() {
+        const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}?per_page=100`;
+        const res = await fetch(url);
+        const files = await res.json();
+        const imgs = files.filter((f) => /\.(jpe?g|png|webp|avif)$/i.test(f.name));
+        const parsed = imgs.map((f) => {
+          const raw = f.name.replace(/\.(jpe?g|png|webp|avif)$/i, "");
+          const title = raw.replace(/[-_]/g, " ").trim();
+          return { url: f.download_url, title };
+        });
+
+        const grid = document.getElementById("grid");
+        grid.innerHTML = parsed
+          .map(
+            (it) => `
+              <figure class="card" data-title="${it.title}">
+                <img src="${it.url}" alt="${it.title}" loading="lazy" decoding="async" />
+              </figure>`
+          )
+          .join("");
+      }
+
+      loadFromGitHub();
+    </script>
+  </body>
+</html>
